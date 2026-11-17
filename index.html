@@ -308,4 +308,925 @@
 
       <div class="exec-box bank-box clickable" id="openBankModalHeader" title="Tocca per gestire il saldo">
         <div class="exec-label">🏦 Saldo Banca</div>
-        <div class="exec-val num" id="heroBankBalance">Impo
+        <div class="exec-val num" id="heroBankBalance">Imposta ✎</div>
+        <div class="exec-sub" id="heroBankSub">Tocca per gestire</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="tab-oggi" class="tab-view active">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">⚡ Spese Rapide</span>
+          <button class="btn-link" id="openQuickModalBtn">+ Gestisci</button>
+        </div>
+        <div class="quick-grid" id="quickGrid"></div>
+      </div>
+
+      <div class="split-row">
+        <div class="card">
+          <div class="card-header"><span class="card-title">➕ Nuova Spesa</span></div>
+          <form id="expenseForm">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label for="expDesc">Descrizione (icona automatica dalla parola)</label>
+                <div class="desc-icon-row">
+                  <select id="expIcon" class="icon-select-mini"></select>
+                  <input type="text" id="expDesc" placeholder="Es. Pizza, Benzina, Supermercato..." required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="expAmount">Importo (€)</label>
+                <input type="number" id="expAmount" step="0.01" min="0.01" inputmode="decimal" placeholder="0.00" required />
+              </div>
+              <div class="form-group">
+                <label for="expCat">Categoria</label>
+                <select id="expCat">
+                  <option value="Bar & Cibo">☕ Bar & Cibo</option>
+                  <option value="Spesa">🛒 Spesa</option>
+                  <option value="Trasporti">🚌 Trasporti</option>
+                  <option value="Svago">🎬 Svago</option>
+                  <option value="Casa">🏠 Casa</option>
+                  <option value="Salute">💊 Salute</option>
+                  <option value="Altro">📦 Altro</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label for="expDate">Data</label>
+                <input type="date" id="expDate" required />
+              </div>
+            </div>
+            <button type="submit" class="btn-primary">Aggiungi Spesa</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="cal-header">
+            <button class="cal-nav-btn" id="calPrevBtn">‹</button>
+            <span class="cal-month-title" id="calMonthTitle"></span>
+            <button class="cal-nav-btn" id="calNextBtn">›</button>
+          </div>
+          <div class="cal-weekdays"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div>
+          <div class="cal-days" id="calDaysGrid"></div>
+          <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:0.74rem;color:var(--muted);">
+            <span id="calSelectedInfo">Tocca un giorno</span>
+            <button class="btn-link" id="calTodayBtn" style="font-size:0.74rem;padding:0;">Oggi</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🔲 Frequenti (Importo Modificabile)</span>
+          <button class="btn-link" id="openVarModalBtn">+ Gestisci</button>
+        </div>
+        <div class="var-grid" id="varGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title" id="dayListTitle">📋 Spese di Oggi</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="btn-link" id="backToTodayBtn" style="display:none;font-size:0.78rem;">Torna a Oggi</button>
+            <span id="todayCount" style="font-size:0.82rem;color:var(--muted);font-weight:600;"></span>
+          </div>
+        </div>
+        <div class="expense-list" id="todayList"></div>
+      </div>
+    </section>
+
+    <section id="tab-quadro" class="tab-view">
+      <div class="stats-grid">
+        <div class="stat-box bank-highlight">
+          <div>
+            <div class="stat-label">🏦 Saldo Bancario Attuale</div>
+            <div class="stat-value num" id="statBankBalance" style="color:var(--teal);">Non impostato</div>
+          </div>
+          <button class="btn-secondary" id="openBankModalOverview">✎ Modifica</button>
+        </div>
+        <div class="stat-box"><div class="stat-label">Oggi</div><div class="stat-value num" id="statToday">€ 0,00</div></div>
+        <div class="stat-box"><div class="stat-label">Questa Settimana</div><div class="stat-value num" id="statWeek">€ 0,00</div></div>
+        <div class="stat-box"><div class="stat-label">Questo Mese</div><div class="stat-value num" id="statMonth">€ 0,00</div></div>
+        <div class="stat-box"><div class="stat-label">Media/Giorno (Mese)</div><div class="stat-value num" id="statAvg">€ 0,00</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">📊 Ultimi 7 Giorni</span></div>
+        <div class="chart-container" id="weekChart"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🏷️ Categorie (Questo Mese)</span></div>
+        <div id="categoryBreakdown"></div>
+      </div>
+    </section>
+
+    <section id="tab-storico" class="tab-view">
+      <div class="card">
+        <div class="card-header"><span class="card-title">💾 Esporta & Backup</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-secondary" id="exportCsvBtn">📥 Scarica CSV (Excel)</button>
+          <button class="btn-secondary" id="exportJsonBtn">📦 Backup JSON</button>
+          <label class="btn-secondary" style="cursor:pointer;">📤 Ripristina JSON<input type="file" id="importJsonInput" accept=".json" style="display:none;" /></label>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🗓️ Tutte le Spese</span>
+          <input type="month" id="historyMonthFilter" style="width:auto;padding:6px 10px;font-size:0.85rem;" />
+        </div>
+        <input type="search" id="historySearch" placeholder="🔍 Cerca per titolo o categoria..." style="margin-bottom:10px;" />
+        <div id="historyList"></div>
+      </div>
+    </section>
+
+    <section id="tab-documenti" class="tab-view">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📁 Sotto-menu Documenti</span>
+          <button class="btn-link" id="openDocCatModalBtn" style="color:var(--indigo);">+ Nuova Dicitura</button>
+        </div>
+        <div class="doc-cats-bar" id="docCatsBar"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title" id="activeDocCatTitle">🚨 Multe</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="btn-link" id="delActiveDocCatBtn" style="color:var(--danger);display:none;font-size:0.78rem;">Elimina voce</button>
+            <button class="btn-secondary" id="openNewDocItemBtn" style="background:var(--indigo-soft);color:var(--indigo);border-color:#c7d2fe;">+ Aggiungi Documento</button>
+          </div>
+        </div>
+        <div id="docItemsList"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="oggi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span>Oggi</span>
+    </button>
+    <button class="nav-btn" data-tab="quadro">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Quadro</span>
+    </button>
+    <button class="nav-btn" data-tab="storico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Storico</span>
+    </button>
+    <button class="nav-btn" data-tab="documenti">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <span>Documenti</span>
+    </button>
+  </nav>
+
+  <div class="modal-backdrop" id="syncModal">
+    <div class="modal">
+      <div class="card-header">
+        <span class="card-title modal-title">☁️ Sincronizzazione Google</span>
+        <button class="btn-link" id="closeSyncModalBtn">Chiudi</button>
+      </div>
+      <form id="syncForm">
+        <div class="form-group">
+          <label for="syncUrlInput">URL Web App Google Apps Script</label>
+          <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" required />
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+          <label for="syncKeyInput">Chiave Segreta (SECRET_KEY)</label>
+          <input type="password" id="syncKeyInput" placeholder="La tua chiave segreta" required />
+        </div>
+        <button type="submit" class="btn-primary btn-indigo">Salva e Sincronizza da Google</button>
+      </form>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+        <button type="button" class="btn-secondary" id="syncPullBtn" style="flex:1;">⬇️ Scarica da Google</button>
+        <button type="button" class="btn-secondary" id="syncPushBtn" style="flex:1;">⬆️ Invia Dati Locali a Google</button>
+      </div>
+      <button type="button" class="btn-link" id="syncDisconnectBtn" style="color:var(--danger);margin-top:10px;display:block;width:100%;text-align:center;">Disconnetti (torna solo locale)</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="bankModal">
+    <div class="modal">
+      <div class="card-header"><span class="card-title modal-title">🏦 Gestisci Saldo Bancario</span><button class="btn-link" id="closeBankModalBtn">Chiudi</button></div>
+      <form id="bankSetForm" style="margin-bottom:16px;">
+        <div class="form-group"><label for="bankInput">Imposta saldo esatto attuale (€)</label><input type="number" id="bankInput" step="0.01" inputmode="decimal" placeholder="Es. 1500.00" required /></div>
+        <button type="submit" class="btn-primary btn-teal">Salva Saldo</button>
+      </form>
+      <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
+      <form id="bankTopupForm">
+        <div class="form-group"><label for="bankTopupInput">Oppure aggiungi un'entrata / stipendio (€)</label><input type="number" id="bankTopupInput" step="0.01" min="0.01" inputmode="decimal" placeholder="Es. 1200.00" required /></div>
+        <button type="submit" class="btn-secondary" style="width:100%;margin-top:10px;background:var(--teal-soft);color:var(--teal);border-color:var(--teal-border);">➕ Aggiungi al Saldo</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="quickModal">
+    <div class="modal">
+      <div class="card-header"><span class="card-title modal-title">Gestisci Spese Rapide</span><button class="btn-link" id="closeQuickModalBtn">Chiudi</button></div>
+      <form id="quickForm" style="margin-bottom:16px;">
+        <div class="form-grid">
+          <div class="form-group"><label for="qName">Nome</label><input type="text" id="qName" placeholder="Es. Caffè" required /></div>
+          <div class="form-group"><label for="qAmount">Importo (€)</label><input type="number" id="qAmount" step="0.01" min="0.01" inputmode="decimal" placeholder="1.20" required /></div>
+          <div class="form-group"><label for="qIcon">Icona</label><select id="qIcon"></select></div>
+          <div class="form-group"><label for="qCat">Categoria</label><select id="qCat"><option value="Bar & Cibo">Bar & Cibo</option><option value="Spesa">Spesa</option><option value="Trasporti">Trasporti</option><option value="Svago">Svago</option><option value="Casa">Casa</option><option value="Salute">Salute</option><option value="Altro">Altro</option></select></div>
+        </div>
+        <button type="submit" class="btn-primary">Aggiungi Pulsante Rapido</button>
+      </form>
+      <div id="quickManageList"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="varManageModal">
+    <div class="modal">
+      <div class="card-header"><span class="card-title modal-title">Gestisci Quadratini</span><button class="btn-link" id="closeVarManageBtn">Chiudi</button></div>
+      <form id="varManageForm" style="margin-bottom:16px;">
+        <div class="form-grid">
+          <div class="form-group"><label for="vName">Voce</label><input type="text" id="vName" placeholder="Es. Supermercato" required /></div>
+          <div class="form-group"><label for="vDefault">Importo base (opzionale)</label><input type="number" id="vDefault" step="0.01" min="0" inputmode="decimal" placeholder="25.00" /></div>
+          <div class="form-group"><label for="vIcon">Icona</label><select id="vIcon"></select></div>
+          <div class="form-group"><label for="vCat">Categoria</label><select id="vCat"><option value="Spesa">Spesa</option><option value="Bar & Cibo">Bar & Cibo</option><option value="Trasporti">Trasporti</option><option value="Svago">Svago</option><option value="Casa">Casa</option><option value="Salute">Salute</option><option value="Altro">Altro</option></select></div>
+        </div>
+        <button type="submit" class="btn-primary">Aggiungi Quadratino</button>
+      </form>
+      <div id="varManageList"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="varPayModal">
+    <div class="modal" style="max-width:340px;">
+      <div class="card-header"><span class="card-title modal-title" id="varPayTitle">🛒 Supermercato</span><button class="btn-link" id="closeVarPayBtn">Annulla</button></div>
+      <form id="varPayForm">
+        <div class="form-group"><label for="varPayAmount">Inserisci o modifica l'importo (€)</label><input type="number" id="varPayAmount" step="0.01" min="0.01" inputmode="decimal" placeholder="0.00" required style="font-size:1.35rem;font-weight:700;text-align:center;" /></div>
+        <button type="submit" class="btn-primary">Registra Spesa</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="docCatModal">
+    <div class="modal" style="max-width:380px;">
+      <div class="card-header"><span class="card-title modal-title">➕ Nuova Dicitura Documenti</span><button class="btn-link" id="closeDocCatModalBtn">Chiudi</button></div>
+      <form id="docCatForm">
+        <div class="form-grid">
+          <div class="form-group full"><label for="docCatName">Nome dicitura</label><input type="text" id="docCatName" placeholder="Es. Bollette Luce/Gas" required /></div>
+          <div class="form-group full"><label for="docCatIcon">Icona</label><select id="docCatIcon"><option value="🚨">🚨 Multe</option><option value="💡">💡 Bollette</option><option value="🚗">🚗 Auto/Assicurazione</option><option value="🏥">🏥 Salute</option><option value="🏠">🏠 Casa</option><option value="💼">💼 Lavoro</option><option value="🧾">🧾 Ricevute</option><option value="📄">📄 Varie</option></select></div>
+        </div>
+        <button type="submit" class="btn-primary btn-indigo">Crea Dicitura</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="docItemModal">
+    <div class="modal">
+      <div class="card-header"><span class="card-title modal-title" id="docItemModalTitle">📎 Nuovo Documento</span><button class="btn-link" id="closeDocItemModalBtn">Annulla</button></div>
+      <form id="docItemForm">
+        <div class="form-grid">
+          <div class="form-group full"><label for="docTitle">Titolo / Oggetto</label><input type="text" id="docTitle" placeholder="Es. Multa ZTL Via Roma" required /></div>
+          <div class="form-group"><label for="docDate">Data</label><input type="date" id="docDate" required /></div>
+          <div class="form-group"><label for="docAmount">Importo € (opzionale)</label><input type="number" id="docAmount" step="0.01" min="0" inputmode="decimal" placeholder="85.00" /></div>
+          <div class="form-group full"><label for="docNotes">Note</label><textarea id="docNotes" rows="2" placeholder="Scadenza, targa, dettagli..."></textarea></div>
+          <div class="form-group full"><label for="docFile">Allega file (PDF, Foto... fino a 12 MB)</label><input type="file" id="docFile" accept=".pdf,image/*,.doc,.docx,.txt" /></div>
+        </div>
+        <button type="submit" class="btn-primary btn-indigo" id="docSaveBtn">Salva Documento</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="filePreviewModal">
+    <div class="modal" style="max-width:620px;">
+      <div class="card-header"><span class="card-title modal-title" id="previewFileTitle">Anteprima File</span><button class="btn-link" id="closePreviewModalBtn">Chiudi</button></div>
+      <div id="previewContainer" style="text-align:center;margin-bottom:12px;"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <a id="previewDownloadBtn" class="btn-secondary" style="text-decoration:none;">⬇ Scarica file</a>
+        <button id="previewNewTabBtn" class="btn-secondary">↗ Apri in nuova scheda</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><span id="toastMsg"></span><button class="toast-undo" id="toastUndoBtn" style="display:none;">Annulla</button></div>
+
+  <script>
+    const K = {
+      EXP: 'speseApp_transactions_v1', QUICK: 'speseApp_quickButtons_v1', VAR: 'speseApp_varTiles_v1',
+      BANK: 'speseApp_bankBalance_v1', GPS: 'speseApp_gpsEnabled_v1',
+      DCATS: 'speseApp_docCats_v1', DITEMS: 'speseApp_docItems_v1', SYNC: 'speseApp_googleSync_v1'
+    };
+
+    const CAT_EMOJIS = { 'Bar & Cibo': '☕', 'Spesa': '🛒', 'Trasporti': '🚌', 'Svago': '🎬', 'Casa': '🏠', 'Salute': '💊', 'Altro': '📦' };
+    const ICON_DB = [
+      ['☕','Caffè'],['🥐','Colazione'],['🥪','Pranzo/Panino'],['🍕','Pizza'],['🍝','Ristorante'],['🍣','Sushi'],['🍔','Fast Food'],
+      ['🍺','Birra/Aperitivo'],['🍷','Vino'],['🍦','Gelato/Dolce'],['🥤','Bibita'],['🛒','Supermercato'],['🥖','Pane/Forno'],
+      ['🥩','Carne/Pesce'],['🥗','Frutta/Verdura'],['⛽','Carburante'],['🚌','Bus/Treno'],['🚕','Taxi'],['🅿️','Parcheggio'],
+      ['🛣️','Autostrada'],['✈️','Viaggi'],['💊','Farmacia/Salute'],['🏋️','Sport/Palestra'],['🎬','Cinema/Svago'],['📚','Libri'],
+      ['👕','Abbigliamento'],['💇','Parrucchiere'],['📱','Telefono'],['💻','Tech/Amazon'],['🏠','Casa/Bollette'],
+      ['🎁','Regali'],['🐾','Animali'],['🚬','Tabacchi'],['🚨','Multe'],['🏦','Banca'],['📦','Altro']
+    ];
+    const KW_ICONS = [
+      [['caff','espress','cappuccin','macchiat','bar'],'☕'],[['colazion','cornett','brioche','croissant'],'🥐'],
+      [['panin','pranz','tramezzin','toast'],'🥪'],[['pizz','pizzer'],'🍕'],[['pasta','ristorant','trattori','osteria','cena'],'🍝'],
+      [['sushi','poke','giappon'],'🍣'],[['burger','mcdonald','kebab','patatin'],'🍔'],[['birr','pub','aperitiv','spritz','cocktail'],'🍺'],
+      [['vino','enotec'],'🍷'],[['gelat','dolc','torta','pasticc'],'🍦'],[['acqua','bibit','coca','succo','snack'],'🥤'],
+      [['supermercat','spesa','esselunga','conad','coop','lidl','carrefour','eurospin','pam'],'🛒'],[['pane','panific','forno','focacc'],'🥖'],
+      [['carne','macell','pollo','pesce'],'🥩'],[['frutta','verdur','ortol','insalata'],'🥗'],[['benzin','diesel','gasolio','carburant','eni','q8','riforniment'],'⛽'],
+      [['bus','autobus','metro','tram','treno','bigliett','abbonament','trenitalia','italo'],'🚌'],[['taxi','uber'],'🚕'],
+      [['parchegg','sosta','strisce'],'🅿️'],[['autostrad','pedagg','telepass'],'🛣️'],[['aereo','volo','hotel','vacanz','viaggi'],'✈️'],
+      [['farmac','medicin','aspirin','visita','dottor','dentist','salut'],'💊'],[['palestr','sport','piscina','padel','calcio'],'🏋️'],
+      [['cinem','film','netflix','spotify','concert','teatro'],'🎬'],[['libr','fumett','cartoler'],'📚'],
+      [['vestit','magli','scarp','zara','abbigliament','shopping'],'👕'],[['parrucch','barbier','estetist','taglio'],'💇'],
+      [['telefon','ricaric','tim','vodafone','wind','iliad','internet'],'📱'],[['amazon','computer','pc','tecnolog','elettronic'],'💻'],
+      [['affitt','mutuo','casa','luce','gas','bollett','ikea'],'🏠'],[['regal','compleann','fior'],'🎁'],
+      [['cane','gatto','veterinar','animal'],'🐾'],[['tabacc','sigarett','iqos'],'🚬'],[['multa','multe','verbal','ztl','autovelox'],'🚨'],[['banca','preliev'],'🏦']
+    ];
+    const DEF_QUICK = [
+      { id: 'q1', name: 'Caffè', amount: 1.20, icon: '☕', category: 'Bar & Cibo' },
+      { id: 'q2', name: 'Colazione', amount: 2.80, icon: '🥐', category: 'Bar & Cibo' },
+      { id: 'q3', name: 'Pranzo', amount: 10.00, icon: '🥪', category: 'Bar & Cibo' },
+      { id: 'q4', name: 'Trasporti', amount: 1.50, icon: '🚌', category: 'Trasporti' },
+      { id: 'q5', name: 'Acqua/Snack', amount: 2.00, icon: '🥤', category: 'Bar & Cibo' }
+    ];
+    const DEF_VAR = [
+      { id: 'v1', name: 'Supermercato', defaultAmount: 30, icon: '🛒', category: 'Spesa' },
+      { id: 'v2', name: 'Benzina', defaultAmount: 40, icon: '⛽', category: 'Trasporti' },
+      { id: 'v3', name: 'Cena fuori', defaultAmount: 25, icon: '🍕', category: 'Bar & Cibo' },
+      { id: 'v4', name: 'Farmacia', defaultAmount: 15, icon: '💊', category: 'Salute' },
+      { id: 'v5', name: 'Shopping', defaultAmount: 0, icon: '👕', category: 'Svago' }
+    ];
+
+    const load = (k, fb) => { try { const r = localStorage.getItem(k); return r !== null ? JSON.parse(r) : fb; } catch { return fb; } };
+    const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+    const $ = (id) => document.getElementById(id);
+
+    let expenses = load(K.EXP, []);
+    let quickButtons = load(K.QUICK, null) || (save(K.QUICK, DEF_QUICK), DEF_QUICK);
+    let varTiles = load(K.VAR, null) || (save(K.VAR, DEF_VAR), DEF_VAR);
+    let bankBalance = load(K.BANK, null);
+    let gpsEnabled = load(K.GPS, false);
+    let docCats = load(K.DCATS, null);
+    if (!docCats || !docCats.length) { docCats = [{ id: 'multe', name: 'Multe', icon: '🚨' }]; save(K.DCATS, docCats); }
+    let docItems = load(K.DITEMS, []);
+    let syncCfg = load(K.SYNC, { url: '', key: '' });
+    let activeDocCatId = docCats[0].id;
+
+    let calViewDate = new Date(), selectedDateStr = getLocalDateStr();
+    let activeVarTile = null, manualIconOverridden = false, lastDeleted = null, toastTimer = null, currentPreviewUrl = null;
+
+    const DB_NAME = 'speseApp_docsDB_v1', STORE = 'docFiles';
+    function openDB() {
+      return new Promise((res, rej) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = (e) => { if (!e.target.result.objectStoreNames.contains(STORE)) e.target.result.createObjectStore(STORE, { keyPath: 'id' }); };
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+      });
+    }
+    async function dbOp(mode, fn) {
+      const db = await openDB();
+      return new Promise((res, rej) => {
+        const tx = db.transaction(STORE, mode), r = fn(tx.objectStore(STORE));
+        tx.oncomplete = () => res(r?.result); tx.onerror = () => rej(tx.error);
+      });
+    }
+
+    function setSyncPill(state, text) {
+      const b = $('syncBtn');
+      b.className = 'pill-btn' + (state === 'ok' ? ' cloud-ok' : state === 'err' ? ' cloud-err' : '');
+      b.textContent = text;
+    }
+
+    const isCloudReady = () => Boolean(syncCfg.url && syncCfg.key);
+
+    async function cloudGet(params = {}) {
+      if (!isCloudReady()) return null;
+      const qs = new URLSearchParams({ key: syncCfg.key, ...params }).toString();
+      const res = await fetch(`${syncCfg.url}?${qs}`);
+      return await res.json();
+    }
+
+    async function cloudPost(action, payload = {}) {
+      if (!isCloudReady()) return null;
+      setSyncPill('ok', '🔄 Sync...');
+      try {
+        const res = await fetch(syncCfg.url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ key: syncCfg.key, action, ...payload })
+        });
+        const json = await res.json();
+        if (json.ok) setSyncPill('ok', '☁️ Google OK');
+        else setSyncPill('err', '⚠️ Errore Sync');
+        return json;
+      } catch {
+        setSyncPill('err', '⚠️ Offline');
+        return null;
+      }
+    }
+
+    async function syncPullFromGoogle(silent = false) {
+      if (!isCloudReady()) return;
+      setSyncPill('ok', '🔄 Carico...');
+      try {
+        const data = await cloudGet({ action: 'getAll' });
+        if (!data || !data.ok) {
+          setSyncPill('err', '⚠️ Chiave/URL errati');
+          if (!silent) showToast(data?.error || 'Errore connessione Google.');
+          return;
+        }
+        expenses = data.expenses || []; save(K.EXP, expenses);
+        if (data.bankBalance !== undefined) { bankBalance = data.bankBalance; save(K.BANK, bankBalance); }
+        if (Array.isArray(data.quickButtons)) { quickButtons = data.quickButtons; save(K.QUICK, quickButtons); }
+        if (Array.isArray(data.varTiles)) { varTiles = data.varTiles; save(K.VAR, varTiles); }
+        if (Array.isArray(data.docCats) && data.docCats.length) { docCats = data.docCats; save(K.DCATS, docCats); }
+        if (Array.isArray(data.docItems)) { docItems = data.docItems; save(K.DITEMS, docItems); }
+        setSyncPill('ok', '☁️ Google OK');
+        renderAll();
+        if (!silent) showToast('☁️ Dati sincronizzati da Google!');
+      } catch {
+        setSyncPill('err', '⚠️ Offline');
+        if (!silent) showToast('Impossibile contattare Google.');
+      }
+    }
+
+    function fileToBase64(file) {
+      return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(',')[1]);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
+    }
+
+    function getLocalDateStr(d = new Date()) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function getTimeStr() { const n = new Date(); return `${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')}`; }
+    function formatEur(v) { return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(v); }
+    function formatBytes(b) { return !b ? '' : b < 1024 ? b + ' B' : b < 1048576 ? (b / 1024).toFixed(1) + ' KB' : (b / 1048576).toFixed(2) + ' MB'; }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    function getWeekStartStr() { const n = new Date(), d = new Date(n.getFullYear(), n.getMonth(), n.getDate()); d.setDate(d.getDate() + (d.getDay() === 0 ? -6 : 1 - d.getDay())); return getLocalDateStr(d); }
+    function detectIcon(txt) { const l = (txt || '').toLowerCase(); for (const [ks, ic] of KW_ICONS) if (ks.some(k => l.includes(k))) return ic; return null; }
+
+    function populateIcons() {
+      $('expIcon').innerHTML = ICON_DB.map(([ic]) => `<option value="${ic}">${ic}</option>`).join('');
+      const full = ICON_DB.map(([ic, lb]) => `<option value="${ic}">${ic} ${lb}</option>`).join('');
+      $('qIcon').innerHTML = full; $('vIcon').innerHTML = full; $('expIcon').value = '☕';
+    }
+
+    function showToast(msg, canUndo = false) {
+      $('toastMsg').textContent = msg;
+      $('toastUndoBtn').style.display = canUndo ? 'inline' : 'none';
+      $('toast').classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { $('toast').classList.remove('show'); lastDeleted = null; }, 3500);
+    }
+
+    $('toastUndoBtn').onclick = () => {
+      if (!lastDeleted) return;
+      const restored = lastDeleted;
+      expenses.push(restored); save(K.EXP, expenses);
+      if (bankBalance !== null) { bankBalance = +(bankBalance - restored.amount).toFixed(2); save(K.BANK, bankBalance); }
+      lastDeleted = null; $('toast').classList.remove('show'); renderAll();
+      cloudPost('addExpense', { expense: restored, bankBalance });
+    };
+
+    function attachLocationAsync(expId) {
+      if (!gpsEnabled || !navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        let place = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        try {
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`, { headers: { 'Accept-Language': 'it' } });
+          if (r.ok) {
+            const a = (await r.json()).address || {};
+            const road = a.road || a.pedestrian || a.suburb || '', city = a.city || a.town || a.village || a.municipality || '';
+            if (road && city) place = `${road}, ${city}`;
+            else if (city || road) place = city || road;
+          }
+        } catch (_) {}
+        const t = expenses.find(e => e.id === expId);
+        if (t) {
+          t.location = { lat, lon, place }; save(K.EXP, expenses); renderAll();
+          cloudPost('updateExpenseLocation', { id: expId, location: t.location });
+        }
+      }, () => {}, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+    }
+
+    function addExpense({ desc, amount, category, date, time, icon }) {
+      const cleanDesc = desc.trim(), numAmt = parseFloat(amount);
+      const newExp = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        desc: cleanDesc, amount: numAmt, category, date, time: time || getTimeStr(),
+        icon: icon || detectIcon(cleanDesc) || CAT_EMOJIS[category] || '📦', location: null
+      };
+      expenses.push(newExp); save(K.EXP, expenses);
+      if (bankBalance !== null) { bankBalance = +(bankBalance - numAmt).toFixed(2); save(K.BANK, bankBalance); }
+      renderAll();
+      showToast(`Aggiunto: ${newExp.icon} ${newExp.desc} (${formatEur(newExp.amount)})`);
+      cloudPost('addExpense', { expense: newExp, bankBalance });
+      attachLocationAsync(newExp.id);
+    }
+
+    function deleteExpense(id) {
+      const idx = expenses.findIndex(e => e.id === id);
+      if (idx === -1) return;
+      lastDeleted = expenses[idx];
+      expenses.splice(idx, 1); save(K.EXP, expenses);
+      if (bankBalance !== null) { bankBalance = +(bankBalance + lastDeleted.amount).toFixed(2); save(K.BANK, bankBalance); }
+      renderAll();
+      showToast(`Eliminato: ${lastDeleted.desc}`, true);
+      cloudPost('deleteExpense', { id, bankBalance });
+    }
+
+    function renderAll() {
+      const todayStr = getLocalDateStr();
+      $('headerDate').textContent = new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+      $('gpsToggleBtn').textContent = gpsEnabled ? '📍 GPS: ON' : '📍 GPS: OFF';
+      $('gpsToggleBtn').classList.toggle('active', gpsEnabled);
+      if (!isCloudReady()) setSyncPill('', '☁️ Sync: Locale');
+
+      renderHeaderMetrics(todayStr);
+      renderQuickButtons();
+      renderVarTiles();
+      renderMiniCalendar(todayStr);
+      renderSelectedDayList(todayStr);
+      renderOverview(todayStr);
+      renderHistory();
+      renderDocuments();
+    }
+
+    function renderHeaderMetrics(todayStr) {
+      const mPref = todayStr.slice(0, 7);
+      let sumToday = 0, sumMonth = 0;
+      expenses.forEach(e => { if (e.date === todayStr) sumToday += e.amount; if (e.date.startsWith(mPref)) sumMonth += e.amount; });
+      $('heroTodayTotal').textContent = formatEur(sumToday);
+      $('heroMonthSub').textContent = `Mese: ${formatEur(sumMonth)}`;
+
+      if (bankBalance === null) {
+        $('heroBankBalance').textContent = 'Imposta ✎'; $('heroBankSub').textContent = 'Tocca per gestire'; $('statBankBalance').textContent = 'Non impostato';
+      } else {
+        const fmt = formatEur(bankBalance);
+        $('heroBankBalance').textContent = fmt; $('heroBankSub').textContent = 'Tocca per gestire';
+        $('statBankBalance').textContent = fmt; $('statBankBalance').style.color = bankBalance < 0 ? 'var(--danger)' : 'var(--teal)';
+      }
+    }
+
+    function renderQuickButtons() {
+      const g = $('quickGrid'), ml = $('quickManageList');
+      g.innerHTML = quickButtons.length ? quickButtons.map(q => `<button class="quick-btn" data-qid="${q.id}"><span class="quick-icon">${esc(q.icon)}</span><span class="quick-name">${esc(q.name)}</span><span class="quick-price num">${formatEur(q.amount)}</span></button>`).join('') : `<div class="empty-state" style="grid-column:1/-1;padding:8px;">Nessuna spesa rapida.</div>`;
+      g.querySelectorAll('.quick-btn').forEach(b => b.onclick = () => { const q = quickButtons.find(i => i.id === b.dataset.qid); if (q) addExpense({ desc: q.name, amount: q.amount, category: q.category, date: getLocalDateStr(), icon: q.icon }); });
+
+      ml.innerHTML = quickButtons.length ? quickButtons.map(q => `<div class="manage-item"><div><strong>${esc(q.icon)} ${esc(q.name)}</strong><div style="font-size:0.78rem;color:var(--muted);">${formatEur(q.amount)} · ${esc(q.category)}</div></div><button class="btn-del" data-del-q="${q.id}">✕</button></div>`).join('') : '<div class="empty-state">Nessun pulsante rapido.</div>';
+      ml.querySelectorAll('[data-del-q]').forEach(b => b.onclick = () => {
+        quickButtons = quickButtons.filter(q => q.id !== b.dataset.delQ); save(K.QUICK, quickButtons); renderQuickButtons();
+        cloudPost('saveSetting', { settingKey: 'quickButtons', settingValue: quickButtons });
+      });
+    }
+
+    function renderVarTiles() {
+      const g = $('varGrid'), ml = $('varManageList');
+      g.innerHTML = varTiles.length ? varTiles.map(v => `<button class="var-square" data-vid="${v.id}"><span class="var-icon">${esc(v.icon)}</span><span class="var-name">${esc(v.name)}</span><span class="var-badge num">${v.defaultAmount > 0 ? '~' + Math.round(v.defaultAmount) + '€ ✎' : '€ ✎'}</span></button>`).join('') : `<div class="empty-state" style="grid-column:1/-1;padding:8px;">Nessun quadratino.</div>`;
+      g.querySelectorAll('.var-square').forEach(b => b.onclick = () => { const t = varTiles.find(i => i.id === b.dataset.vid); if (t) openVarPayModal(t); });
+
+      ml.innerHTML = varTiles.length ? varTiles.map(v => `<div class="manage-item"><div><strong>${esc(v.icon)} ${esc(v.name)}</strong><div style="font-size:0.78rem;color:var(--muted);">${v.defaultAmount > 0 ? 'Base: ' + formatEur(v.defaultAmount) : 'Importo libero'} · ${esc(v.category)}</div></div><button class="btn-del" data-del-v="${v.id}">✕</button></div>`).join('') : '<div class="empty-state">Nessun quadratino.</div>';
+      ml.querySelectorAll('[data-del-v]').forEach(b => b.onclick = () => {
+        varTiles = varTiles.filter(v => v.id !== b.dataset.delV); save(K.VAR, varTiles); renderVarTiles();
+        cloudPost('saveSetting', { settingKey: 'varTiles', settingValue: varTiles });
+      });
+    }
+
+    function renderMiniCalendar(todayStr) {
+      const y = calViewDate.getFullYear(), m = calViewDate.getMonth();
+      $('calMonthTitle').textContent = calViewDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+      const mPref = `${y}-${String(m + 1).padStart(2, '0')}`, sums = {};
+      expenses.forEach(e => { if (e.date.startsWith(mPref)) sums[e.date] = (sums[e.date] || 0) + e.amount; });
+
+      const offset = (new Date(y, m, 1).getDay() + 6) % 7, daysInM = new Date(y, m + 1, 0).getDate();
+      let html = '<div class="cal-day empty"></div>'.repeat(offset);
+      for (let d = 1; d <= daysInM; d++) {
+        const dStr = `${mPref}-${String(d).padStart(2, '0')}`, sp = sums[dStr] || 0;
+        let cls = 'cal-day' + (sp > 0 && sp < 20 ? ' has-low' : sp >= 20 && sp < 60 ? ' has-med' : sp >= 60 ? ' has-high' : '');
+        if (dStr === todayStr) cls += ' is-today';
+        if (dStr === selectedDateStr) cls += ' selected';
+        html += `<button type="button" class="${cls}" data-cal-date="${dStr}"><span>${d}</span>${sp > 0 ? '<span class="cal-dot"></span>' : ''}</button>`;
+      }
+      const g = $('calDaysGrid'); g.innerHTML = html;
+      const [, sm, sd] = selectedDateStr.split('-');
+      $('calSelectedInfo').textContent = `${sd}/${sm}: ${formatEur(sums[selectedDateStr] || 0)}`;
+      g.querySelectorAll('[data-cal-date]').forEach(b => b.onclick = () => {
+        selectedDateStr = b.dataset.calDate; $('expDate').value = selectedDateStr; renderMiniCalendar(todayStr); renderSelectedDayList(todayStr);
+      });
+    }
+
+    function rowHtml(e) {
+      const loc = e.location ? `<div><a class="expense-loc" href="https://www.google.com/maps?q=${e.location.lat},${e.location.lon}" target="_blank" rel="noopener">📍 ${esc(e.location.place)}</a></div>` : '';
+      return `<div class="expense-item"><div class="expense-left"><div class="cat-emoji">${esc(e.icon || CAT_EMOJIS[e.category] || '📦')}</div><div class="expense-info"><div class="expense-desc">${esc(e.desc)}</div><div class="expense-meta">${esc(e.category)} · ${esc(e.time)}</div>${loc}</div></div><div class="expense-right"><span class="expense-amount num">${formatEur(e.amount)}</span><button class="btn-del" data-del-exp="${e.id}">✕</button></div></div>`;
+    }
+
+    function renderSelectedDayList(todayStr) {
+      const isToday = selectedDateStr === todayStr, [y, m, d] = selectedDateStr.split('-');
+      const lbl = new Date(y, m - 1, d).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
+      $('dayListTitle').textContent = isToday ? '📋 Spese di Oggi' : `📋 Spese del ${lbl}`;
+      $('backToTodayBtn').style.display = isToday ? 'none' : 'inline';
+      const list = expenses.filter(e => e.date === selectedDateStr).sort((a, b) => b.time.localeCompare(a.time));
+      $('todayCount').textContent = `${list.length} ${list.length === 1 ? 'spesa' : 'spese'}`;
+      const el = $('todayList');
+      el.innerHTML = list.length ? list.map(rowHtml).join('') : `<div class="empty-state">Nessuna spesa registrata per ${isToday ? 'oggi' : 'questa data'}.</div>`;
+      el.querySelectorAll('[data-del-exp]').forEach(b => b.onclick = () => deleteExpense(b.dataset.delExp));
+    }
+
+    function renderOverview(todayStr) {
+      const wk = getWeekStartStr(), mp = todayStr.slice(0, 7);
+      let sT = 0, sW = 0, sM = 0; const cats = {};
+      expenses.forEach(e => {
+        if (e.date === todayStr) sT += e.amount;
+        if (e.date >= wk && e.date <= todayStr) sW += e.amount;
+        if (e.date.startsWith(mp)) { sM += e.amount; cats[e.category] = (cats[e.category] || 0) + e.amount; }
+      });
+      $('statToday').textContent = formatEur(sT); $('statWeek').textContent = formatEur(sW);
+      $('statMonth').textContent = formatEur(sM); $('statAvg').textContent = formatEur(sM / new Date().getDate());
+
+      const days = [], dn = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i); const ds = getLocalDateStr(d);
+        days.push({ label: i === 0 ? 'Oggi' : dn[d.getDay()], total: expenses.filter(e => e.date === ds).reduce((a, e) => a + e.amount, 0) });
+      }
+      const maxV = Math.max(...days.map(d => d.total), 10);
+      $('weekChart').innerHTML = days.map(d => `<div class="bar-col"><span class="bar-val num">${d.total > 0 ? Math.round(d.total) + '€' : ''}</span><div class="bar-fill ${d.total === 0 ? 'zero' : ''}" style="height:${d.total > 0 ? Math.max(Math.round(d.total / maxV * 100), 6) : 3}%;"></div><span class="bar-label">${d.label}</span></div>`).join('');
+
+      const sorted = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+      $('categoryBreakdown').innerHTML = sorted.length ? sorted.map(([c, v]) => {
+        const pct = Math.round(v / sM * 100);
+        return `<div class="cat-row"><div class="cat-row-top"><span>${CAT_EMOJIS[c] || '📦'} ${esc(c)} (${pct}%)</span><span class="num">${formatEur(v)}</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct}%;"></div></div></div>`;
+      }).join('') : `<div class="empty-state">Nessuna spesa questo mese.</div>`;
+    }
+
+    function renderHistory() {
+      const mf = $('historyMonthFilter').value, q = ($('historySearch').value || '').trim().toLowerCase();
+      let list = expenses.filter(e => (!mf || e.date.startsWith(mf)) && (!q || e.desc.toLowerCase().includes(q) || e.category.toLowerCase().includes(q)));
+      const el = $('historyList');
+      if (!list.length) { el.innerHTML = `<div class="empty-state">Nessuna spesa trovata.</div>`; return; }
+
+      list.sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+      const grp = {}; list.forEach(e => { (grp[e.date] = grp[e.date] || []).push(e); });
+      el.innerHTML = Object.entries(grp).map(([ds, items]) => {
+        const [y, m, d] = ds.split('-'), lbl = new Date(y, m - 1, d).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+        return `<div class="day-group-header"><span style="text-transform:capitalize;">${lbl}</span><span class="num">${formatEur(items.reduce((a, i) => a + i.amount, 0))}</span></div><div class="expense-list">${items.map(rowHtml).join('')}</div>`;
+      }).join('');
+      el.querySelectorAll('[data-del-exp]').forEach(b => b.onclick = () => deleteExpense(b.dataset.delExp));
+    }
+
+    function renderDocuments() {
+      if (!docCats.some(c => c.id === activeDocCatId)) activeDocCatId = docCats[0].id;
+      const bar = $('docCatsBar');
+      bar.innerHTML = docCats.map(c => `<button class="doc-cat-pill ${c.id === activeDocCatId ? 'active' : ''}" data-doc-cat="${c.id}"><span>${esc(c.icon)} ${esc(c.name)}</span><span class="count-badge">${docItems.filter(i => i.catId === c.id).length}</span></button>`).join('');
+      bar.querySelectorAll('[data-doc-cat]').forEach(b => b.onclick = () => { activeDocCatId = b.dataset.docCat; renderDocuments(); });
+
+      const act = docCats.find(c => c.id === activeDocCatId);
+      $('activeDocCatTitle').textContent = `${act.icon} ${act.name}`;
+      $('delActiveDocCatBtn').style.display = act.id === 'multe' ? 'none' : 'inline';
+
+      const items = docItems.filter(i => i.catId === activeDocCatId).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      const el = $('docItemsList');
+      if (!items.length) { el.innerHTML = `<div class="empty-state">Nessun documento in "${esc(act.name)}".<br>Clicca "+ Aggiungi Documento" per allegare PDF o foto.</div>`; return; }
+
+      el.innerHTML = items.map(it => {
+        const [y, m, d] = (it.date || '').split('-'), df = d ? `${d}/${m}/${y}` : '';
+        const hasFile = Boolean(it.fileId || it.driveFileId);
+        const fh = hasFile ? `<div class="doc-file-bar"><span class="doc-file-name">📎 ${esc(it.fileName)} <span style="color:var(--muted);font-weight:400;">(${formatBytes(it.fileSize)})</span></span><div class="doc-file-actions"><button class="btn-secondary" data-view-doc="${it.id}" style="padding:4px 9px;font-size:0.76rem;">👁 Apri</button><button class="btn-secondary" data-dl-doc="${it.id}" style="padding:4px 9px;font-size:0.76rem;">⬇ Scarica</button></div></div>` : '';
+        return `<div class="doc-item"><div class="doc-item-top"><div><div class="doc-title">${esc(it.title)}</div><div class="doc-meta">${df}${it.amount > 0 ? ` · <strong class="num">${formatEur(it.amount)}</strong>` : ''}</div></div><button class="btn-del" data-del-doc="${it.id}">✕</button></div>${it.notes ? `<div class="doc-notes">${esc(it.notes)}</div>` : ''}${fh}</div>`;
+      }).join('');
+
+      el.querySelectorAll('[data-del-doc]').forEach(b => b.onclick = async () => {
+        const it = docItems.find(i => i.id === b.dataset.delDoc);
+        if (!it) return;
+        if (it.fileId) try { await dbOp('readwrite', s => s.delete(it.fileId)); } catch (_) {}
+        docItems = docItems.filter(i => i.id !== it.id); save(K.DITEMS, docItems); renderDocuments(); showToast('Documento eliminato.');
+        cloudPost('deleteDocItem', { id: it.id });
+      });
+      el.querySelectorAll('[data-view-doc]').forEach(b => b.onclick = () => handleDocFile(b.dataset.viewDoc, 'preview'));
+      el.querySelectorAll('[data-dl-doc]').forEach(b => b.onclick = () => handleDocFile(b.dataset.dlDoc, 'download'));
+    }
+
+    async function handleDocFile(docId, mode) {
+      const it = docItems.find(i => i.id === docId);
+      if (!it) return;
+      let rec = it.fileId ? await dbOp('readonly', s => s.get(it.fileId)).catch(() => null) : null;
+
+      if ((!rec || !rec.blob) && it.driveFileId && isCloudReady()) {
+        showToast('☁️ Scarico allegato da Google Drive...');
+        try {
+          const res = await cloudGet({ action: 'getFile', fileId: it.driveFileId });
+          if (res && res.ok && res.base64) {
+            const bin = atob(res.base64), bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            const blob = new Blob([bytes], { type: res.fileType || it.fileType || 'application/octet-stream' });
+            rec = { id: it.fileId || ('drive_' + it.driveFileId), fileName: res.fileName || it.fileName, fileType: blob.type, fileSize: blob.size, blob };
+            await dbOp('readwrite', s => s.put(rec)).catch(() => {});
+          }
+        } catch {}
+      }
+
+      if (!rec || !rec.blob) return showToast('File non disponibile.');
+
+      if (mode === 'download') {
+        const u = URL.createObjectURL(rec.blob), a = document.createElement('a');
+        a.href = u; a.download = rec.fileName; a.click();
+        setTimeout(() => URL.revokeObjectURL(u), 1000);
+        return;
+      }
+
+      if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
+      currentPreviewUrl = URL.createObjectURL(rec.blob);
+      $('previewFileTitle').textContent = rec.fileName;
+      $('previewContainer').innerHTML = rec.fileType.startsWith('image/')
+        ? `<img src="${currentPreviewUrl}" style="max-width:100%;max-height:60vh;border-radius:10px;" />`
+        : rec.fileType === 'application/pdf'
+          ? `<iframe src="${currentPreviewUrl}" style="width:100%;height:60vh;border:1px solid var(--border);border-radius:10px;"></iframe>`
+          : `<div class="empty-state">Anteprima non disponibile.<br>Usa <strong>Scarica file</strong> o <strong>Apri in nuova scheda</strong>.</div>`;
+      $('previewDownloadBtn').href = currentPreviewUrl; $('previewDownloadBtn').download = rec.fileName;
+      $('previewNewTabBtn').onclick = () => window.open(currentPreviewUrl, '_blank');
+      $('filePreviewModal').classList.add('open');
+    }
+
+    $('expDate').value = getLocalDateStr();
+    $('historyMonthFilter').value = getLocalDateStr().slice(0, 7);
+    $('expDesc').oninput = (e) => { if (!manualIconOverridden) $('expIcon').value = detectIcon(e.target.value) || CAT_EMOJIS[$('expCat').value] || '📦'; };
+    $('expCat').onchange = (e) => { if (!manualIconOverridden && !detectIcon($('expDesc').value)) $('expIcon').value = CAT_EMOJIS[e.target.value] || '📦'; };
+    $('expIcon').onchange = () => { manualIconOverridden = true; };
+    $('qName').oninput = (e) => { const m = detectIcon(e.target.value); if (m) $('qIcon').value = m; };
+    $('vName').oninput = (e) => { const m = detectIcon(e.target.value); if (m) $('vIcon').value = m; };
+
+    $('gpsToggleBtn').onclick = () => {
+      if (!navigator.geolocation) return showToast('GPS non supportato.');
+      gpsEnabled = !gpsEnabled; save(K.GPS, gpsEnabled); renderAll();
+      if (gpsEnabled) navigator.geolocation.getCurrentPosition(() => showToast('📍 GPS attivato!'), () => showToast('⚠️ Permesso posizione negato.'), { timeout: 6000 });
+      else showToast('📍 GPS disattivato.');
+    };
+
+    $('calPrevBtn').onclick = () => { calViewDate.setMonth(calViewDate.getMonth() - 1); renderMiniCalendar(getLocalDateStr()); };
+    $('calNextBtn').onclick = () => { calViewDate.setMonth(calViewDate.getMonth() + 1); renderMiniCalendar(getLocalDateStr()); };
+    function jumpToday() { const t = getLocalDateStr(); calViewDate = new Date(); selectedDateStr = t; $('expDate').value = t; renderMiniCalendar(t); renderSelectedDayList(t); }
+    $('calTodayBtn').onclick = $('backToTodayBtn').onclick = jumpToday;
+
+    $('expenseForm').onsubmit = (e) => {
+      e.preventDefault();
+      const d = $('expDate').value; selectedDateStr = d;
+      const [y, m] = d.split('-').map(Number); calViewDate = new Date(y, m - 1, 1);
+      addExpense({ desc: $('expDesc').value, amount: $('expAmount').value, category: $('expCat').value, date: d, icon: $('expIcon').value });
+      $('expDesc').value = ''; $('expAmount').value = ''; manualIconOverridden = false;
+      $('expIcon').value = CAT_EMOJIS[$('expCat').value] || '☕';
+    };
+
+    $('historyMonthFilter').onchange = $('historySearch').oninput = renderHistory;
+
+    document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => {
+      document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.tab-view').forEach(x => x.classList.remove('active'));
+      b.classList.add('active'); $(`tab-${b.dataset.tab}`).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    function bindModal(mid, cid) { const m = $(mid); if (cid) $(cid).onclick = () => m.classList.remove('open'); m.onclick = (e) => { if (e.target === m) m.classList.remove('open'); }; return m; }
+
+    const syncM = bindModal('syncModal', 'closeSyncModalBtn');
+    $('syncBtn').onclick = () => { $('syncUrlInput').value = syncCfg.url || ''; $('syncKeyInput').value = syncCfg.key || ''; syncM.classList.add('open'); };
+    $('syncForm').onsubmit = async (e) => {
+      e.preventDefault();
+      syncCfg = { url: $('syncUrlInput').value.trim(), key: $('syncKeyInput').value.trim() };
+      save(K.SYNC, syncCfg); syncM.classList.remove('open');
+      await syncPullFromGoogle(false);
+    };
+    $('syncPullBtn').onclick = async () => { syncM.classList.remove('open'); await syncPullFromGoogle(false); };
+    $('syncPushBtn').onclick = async () => {
+      if (!isCloudReady()) return showToast('Inserisci prima URL e Chiave.');
+      const res = await cloudPost('pushAll', { expenses, bankBalance, quickButtons, varTiles, docCats });
+      if (res?.ok) { syncM.classList.remove('open'); showToast('⬆️ Dati locali caricati su Google!'); }
+    };
+    $('syncDisconnectBtn').onclick = () => { syncCfg = { url: '', key: '' }; save(K.SYNC, syncCfg); syncM.classList.remove('open'); renderAll(); showToast('Modalità locale attiva.'); };
+
+    const bankM = bindModal('bankModal', 'closeBankModalBtn');
+    const openBank = () => { $('bankInput').value = bankBalance !== null ? bankBalance.toFixed(2) : ''; $('bankTopupInput').value = ''; bankM.classList.add('open'); };
+    $('openBankModalHeader').onclick = $('openBankModalOverview').onclick = openBank;
+    $('bankSetForm').onsubmit = (e) => {
+      e.preventDefault(); bankBalance = parseFloat($('bankInput').value); save(K.BANK, bankBalance); bankM.classList.remove('open'); renderAll();
+      showToast(`🏦 Saldo: ${formatEur(bankBalance)}`); cloudPost('saveSetting', { settingKey: 'bankBalance', settingValue: bankBalance });
+    };
+    $('bankTopupForm').onsubmit = (e) => {
+      e.preventDefault(); const a = parseFloat($('bankTopupInput').value); bankBalance = +((bankBalance || 0) + a).toFixed(2); save(K.BANK, bankBalance); bankM.classList.remove('open'); renderAll();
+      showToast(`➕ Aggiunti ${formatEur(a)}!`); cloudPost('saveSetting', { settingKey: 'bankBalance', settingValue: bankBalance });
+    };
+
+    const quickM = bindModal('quickModal', 'closeQuickModalBtn');
+    $('openQuickModalBtn').onclick = () => quickM.classList.add('open');
+    $('quickForm').onsubmit = (e) => {
+      e.preventDefault(); quickButtons.push({ id: 'q_' + Date.now(), name: $('qName').value.trim(), amount: parseFloat($('qAmount').value), icon: $('qIcon').value, category: $('qCat').value });
+      save(K.QUICK, quickButtons); renderQuickButtons(); e.target.reset();
+      cloudPost('saveSetting', { settingKey: 'quickButtons', settingValue: quickButtons });
+    };
+
+    const varManageM = bindModal('varManageModal', 'closeVarManageBtn');
+    $('openVarModalBtn').onclick = () => varManageM.classList.add('open');
+    $('varManageForm').onsubmit = (e) => {
+      e.preventDefault(); const dv = parseFloat($('vDefault').value);
+      varTiles.push({ id: 'v_' + Date.now(), name: $('vName').value.trim(), defaultAmount: isNaN(dv) ? 0 : dv, icon: $('vIcon').value, category: $('vCat').value });
+      save(K.VAR, varTiles); renderVarTiles(); e.target.reset();
+      cloudPost('saveSetting', { settingKey: 'varTiles', settingValue: varTiles });
+    };
+
+    const varPayM = bindModal('varPayModal', 'closeVarPayBtn');
+    function openVarPayModal(tile) {
+      activeVarTile = tile; $('varPayTitle').textContent = `${tile.icon} ${tile.name}`;
+      const inp = $('varPayAmount'); inp.value = tile.defaultAmount > 0 ? tile.defaultAmount.toFixed(2) : '';
+      varPayM.classList.add('open'); setTimeout(() => { inp.focus(); inp.select(); }, 50);
+    }
+    $('varPayForm').onsubmit = (e) => {
+      e.preventDefault(); if (!activeVarTile) return;
+      const amt = parseFloat($('varPayAmount').value); activeVarTile.defaultAmount = amt; save(K.VAR, varTiles);
+      cloudPost('saveSetting', { settingKey: 'varTiles', settingValue: varTiles });
+      addExpense({ desc: activeVarTile.name, amount: amt, category: activeVarTile.category, date: getLocalDateStr(), icon: activeVarTile.icon });
+      varPayM.classList.remove('open'); activeVarTile = null;
+    };
+
+    const docCatM = bindModal('docCatModal', 'closeDocCatModalBtn');
+    $('openDocCatModalBtn').onclick = () => docCatM.classList.add('open');
+    $('docCatForm').onsubmit = (e) => {
+      e.preventDefault();
+      const nc = { id: 'cat_' + Date.now(), name: $('docCatName').value.trim(), icon: $('docCatIcon').value };
+      docCats.push(nc); save(K.DCATS, docCats); activeDocCatId = nc.id; docCatM.classList.remove('open'); e.target.reset(); renderDocuments();
+      cloudPost('saveSetting', { settingKey: 'docCats', settingValue: docCats });
+    };
+
+    $('delActiveDocCatBtn').onclick = async () => {
+      if (activeDocCatId === 'multe') return;
+      for (const it of docItems.filter(i => i.catId === activeDocCatId)) if (it.fileId) try { await dbOp('readwrite', s => s.delete(it.fileId)); } catch (_) {}
+      docItems = docItems.filter(i => i.catId !== activeDocCatId); docCats = docCats.filter(c => c.id !== activeDocCatId);
+      save(K.DITEMS, docItems); save(K.DCATS, docCats);
+      const removedCatId = activeDocCatId; activeDocCatId = docCats[0].id; renderDocuments();
+      cloudPost('deleteDocCat', { catId: removedCatId, docCats });
+    };
+
+    const docItemM = bindModal('docItemModal', 'closeDocItemModalBtn');
+    $('openNewDocItemBtn').onclick = () => {
+      const cat = docCats.find(c => c.id === activeDocCatId);
+      $('docItemModalTitle').textContent = `${cat.icon} Nuovo in ${cat.name}`;
+      $('docDate').value = getLocalDateStr(); docItemM.classList.add('open');
+    };
+    $('docItemForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const file = $('docFile').files[0];
+      if (file && file.size > 12 * 1024 * 1024) return showToast('File troppo grande (max 12 MB).');
+
+      const btn = $('docSaveBtn'); btn.disabled = true; btn.textContent = 'Salvataggio...';
+      let meta = { fileId: null, driveFileId: '', fileName: '', fileType: '', fileSize: 0 }, b64 = '';
+      if (file) {
+        const fId = 'file_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+        try {
+          await dbOp('readwrite', s => s.put({ id: fId, fileName: file.name, fileType: file.type || 'application/octet-stream', fileSize: file.size, blob: file }));
+          meta = { fileId: fId, driveFileId: '', fileName: file.name, fileType: file.type || '', fileSize: file.size };
+          if (isCloudReady()) b64 = await fileToBase64(file);
+        } catch { btn.disabled = false; btn.textContent = 'Salva Documento'; return showToast('Errore salvataggio file.'); }
+      }
+
+      const av = parseFloat($('docAmount').value);
+      const item = { id: 'doc_' + Date.now(), catId: activeDocCatId, title: $('docTitle').value.trim(), date: $('docDate').value, amount: isNaN(av) ? 0 : av, notes: $('docNotes').value.trim(), ...meta };
+      docItems.push(item); save(K.DITEMS, docItems);
+      docItemM.classList.remove('open'); e.target.reset();
+      btn.disabled = false; btn.textContent = 'Salva Documento';
+      renderDocuments(); showToast('📁 Documento salvato!');
+
+      if (isCloudReady()) {
+        const res = await cloudPost('addDocItem', { item, fileBase64: b64, fileName: item.fileName, fileType: item.fileType });
+        if (res && res.driveFileId) { item.driveFileId = res.driveFileId; save(K.DITEMS, docItems); }
+      }
+    };
+
+    const prevM = $('filePreviewModal');
+    const closePrev = () => { prevM.classList.remove('open'); $('previewContainer').innerHTML = ''; if (currentPreviewUrl) { URL.revokeObjectURL(currentPreviewUrl); currentPreviewUrl = null; } };
+    $('closePreviewModalBtn').onclick = closePrev;
+    prevM.onclick = (e) => { if (e.target === prevM) closePrev(); };
+
+    function dlFile(name, content, type) { const u = URL.createObjectURL(new Blob([content], { type })), a = document.createElement('a'); a.href = u; a.download = name; a.click(); URL.revokeObjectURL(u); }
+    $('exportCsvBtn').onclick = () => {
+      if (!expenses.length) return showToast('Nessuna spesa da esportare.');
+      const rows = expenses.map(e => `${e.date},${e.time},"${e.desc.replace(/"/g, '""')}",${e.category},${e.amount.toFixed(2)},${e.location ? `"${e.location.place.replace(/"/g, '""')}"` : ''}`).join('\n');
+      dlFile('le_mie_spese.csv', 'Data,Ora,Descrizione,Categoria,Importo,Posizione\n' + rows, 'text/csv;charset=utf-8;');
+    };
+    $('exportJsonBtn').onclick = () => dlFile(`backup_spese_${getLocalDateStr()}.json`, JSON.stringify({ expenses, quickButtons, varTiles, bankBalance, docCats }, null, 2), 'application/json');
+    $('importJsonInput').onchange = (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = (ev) => {
+        try {
+          const d = JSON.parse(ev.target.result);
+          if (Array.isArray(d.expenses)) { expenses = d.expenses; save(K.EXP, expenses); }
+          if (Array.isArray(d.quickButtons)) { quickButtons = d.quickButtons; save(K.QUICK, quickButtons); }
+          if (Array.isArray(d.varTiles)) { varTiles = d.varTiles; save(K.VAR, varTiles); }
+          if (typeof d.bankBalance === 'number') { bankBalance = d.bankBalance; save(K.BANK, bankBalance); }
+          if (Array.isArray(d.docCats)) { docCats = d.docCats; save(K.DCATS, docCats); }
+          renderAll(); showToast('Backup ripristinato!');
+        } catch { showToast('File di backup non valido.'); }
+      };
+      r.readAsText(f); e.target.value = '';
+    };
+
+    populateIcons();
+    renderAll();
+    if (isCloudReady()) syncPullFromGoogle(true);
+  </script>
+</body>
+</html>
